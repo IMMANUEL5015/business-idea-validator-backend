@@ -23,7 +23,7 @@ for ideas that are market worthy.
 6. Your server should be running successfully. You can start interacting with the API Endpoints at **http://127.0.0.1:8000/docs**.
 
 ## Helpful Links
-* API URL - 
+* API URL - https://business-idea-validator-backend.onrender.com
 * API Documentation - **{{API URL}}/docs**
 
 ## Miscellanous
