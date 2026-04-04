@@ -6,21 +6,11 @@ from helpers.business_idea_criteria import criteria
 
 client = OpenAI(api_key=settings.ai_secret_key)
 
-# GPT-4-turbo for all high-intelligence tasks: validation, business plan, chat
 HIGH_INTELLIGENCE_MODEL = "gpt-4-turbo"
 
-# GPT-3.5-turbo for cheap, repetitive tasks: summarising conversation history
 LOW_COST_MODEL = "gpt-3.5-turbo"
 
-
-# ─────────────────────────────────────────────
-# VALIDATE IDEA
-# ─────────────────────────────────────────────
-
 def validate_idea(title: str, description: str) -> dict:
-    # Build one system message per criterion, each instructing the model to
-    # actively search its knowledge and the web for evidence that supports
-    # or challenges the criterion as it applies to the submitted idea.
     criteria_messages = [
         {
             "role": "system",
@@ -87,11 +77,6 @@ def validate_idea(title: str, description: str) -> dict:
             detail="The system was unable to validate your idea. Please try again.",
         )
 
-
-# ─────────────────────────────────────────────
-# GENERATE BUSINESS PLAN
-# ─────────────────────────────────────────────
-
 def generate_business_plan(title: str, description: str, validation: dict) -> dict:
     response = client.chat.completions.create(
         model=HIGH_INTELLIGENCE_MODEL,
@@ -153,11 +138,6 @@ def generate_business_plan(title: str, description: str, validation: dict) -> di
             detail="The system was unable to generate a business plan. Please try again.",
         )
 
-
-# ─────────────────────────────────────────────
-# SUMMARIZE CONVERSATIONS
-# ─────────────────────────────────────────────
-
 def summarize_conversations(messages: list) -> str:
     formatted = "\n".join(
         f"{'User' if m.role.value == 'user' else 'AI'}: {m.message}"
@@ -201,11 +181,6 @@ def summarize_conversations(messages: list) -> str:
             detail="The system was unable to summarize the conversation. Please try again.",
         )
 
-
-# ─────────────────────────────────────────────
-# CHAT
-# ─────────────────────────────────────────────
-
 def chat(
     title: str,
     description: str,
@@ -215,7 +190,6 @@ def chat(
     business_plan,
     user_message: str,
 ) -> str:
-    # Build context blocks for the system messages
     validation_context = (
         f"Validation Score: {validation.score}/100\n"
         f"Risks: {validation.risks}\n"
@@ -237,15 +211,13 @@ def chat(
         "There is no prior conversation history."
     )
 
-    # Map recent DB messages to OpenAI message format
-    # ConversationRole.ai maps to "assistant" in the OpenAI API
     history_messages = [
         {
             "role": "user" if m.role.value == "user" else "assistant",
             "content": m.message,
         }
         for m in recent_messages
-        if m.message != user_message  # exclude the message we're currently replying to
+        if m.message != user_message
     ]
 
     system_messages = [

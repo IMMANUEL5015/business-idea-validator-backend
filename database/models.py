@@ -4,8 +4,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
 
-# --- Enums ---
-
 class IdeaStatus(str, enum.Enum):
     draft = "draft"
     validated = "validated"
@@ -14,8 +12,6 @@ class IdeaStatus(str, enum.Enum):
 class ConversationRole(str, enum.Enum):
     user = "user"
     ai = "ai"
-
-# --- Models ---
 
 class User(Base):
     __tablename__ = "Users"

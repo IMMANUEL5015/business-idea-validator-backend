@@ -13,11 +13,6 @@ from helpers.config import settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 http_bearer = HTTPBearer()
 
-
-# ─────────────────────────────────────────────
-# CREATE USER
-# ─────────────────────────────────────────────
-
 def create_user(db: Session, user: UserCreate):
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
@@ -30,20 +25,14 @@ def create_user(db: Session, user: UserCreate):
     return new_user
 
 
-# ─────────────────────────────────────────────
-# LOGIN — Generate and store OTP, return it for email dispatch
-# ─────────────────────────────────────────────
-
 def login_user(db: Session, user: UserCreate):
     existing = db.query(User).filter(User.email == user.email).first()
     if not existing:
         raise HTTPException(status_code=404, detail="Email not registered.")
 
-    # Generate 6-digit OTP
     code = str(secrets.randbelow(1_000_000)).zfill(6)
     hashed_code = pwd_context.hash(code)
 
-    # Invalidate any previous unused codes for this user
     db.query(LoginCode).filter(
         LoginCode.user_id == existing.id,
         LoginCode.used == False,
@@ -58,11 +47,6 @@ def login_user(db: Session, user: UserCreate):
     db.commit()
 
     return code, existing.email
-
-
-# ─────────────────────────────────────────────
-# VERIFY CODE — Validate OTP and return JWT
-# ─────────────────────────────────────────────
 
 def verify_login_code(db: Session, email: str, code: str) -> str:
     user = db.query(User).filter(User.email == email).first()
@@ -89,19 +73,10 @@ def verify_login_code(db: Session, email: str, code: str) -> str:
     return _create_access_token({"sub": str(user.id)})
 
 
-# ─────────────────────────────────────────────
-# JWT HELPERS
-# ─────────────────────────────────────────────
-
 def _create_access_token(data: dict) -> str:
     to_encode = data.copy()
     to_encode["exp"] = datetime.now(timezone.utc) + timedelta(hours=24)
     return jwt.encode(to_encode, settings.jwt_secret_key, algorithm="HS256")
-
-
-# ─────────────────────────────────────────────
-# AUTH DEPENDENCY — Protects routes
-# ─────────────────────────────────────────────
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(http_bearer),

@@ -5,15 +5,7 @@ from database.models import Idea, Validation, BusinessPlan, IdeaStatus
 from helpers.schemas import IdeaCreate, IdeaUpdate
 from helpers import AI
 
-# Ideas with a validation score at or above this threshold are considered
-# market-worthy and will have a business plan generated automatically.
-# Scale: 0–100. Will be refined when the AI section is implemented.
 VALIDATION_THRESHOLD = 80.0
-
-
-# ─────────────────────────────────────────────
-# CREATE IDEA
-# ─────────────────────────────────────────────
 
 def create_idea(db: Session, user_id: int, idea_data: IdeaCreate) -> Idea:
     idea = Idea(
@@ -28,11 +20,6 @@ def create_idea(db: Session, user_id: int, idea_data: IdeaCreate) -> Idea:
 
     _run_validation(db, idea)
     return get_idea(db, user_id, idea.id)
-
-
-# ─────────────────────────────────────────────
-# LIST IDEAS — Paginated, most recent first
-# ─────────────────────────────────────────────
 
 def get_ideas(db: Session, user_id: int, page: int, limit: int) -> dict:
     total = db.query(Idea).filter(Idea.user_id == user_id).count()
@@ -52,11 +39,6 @@ def get_ideas(db: Session, user_id: int, page: int, limit: int) -> dict:
         "pages": math.ceil(total / limit) if total > 0 else 1,
     }
 
-
-# ─────────────────────────────────────────────
-# GET SPECIFIC IDEA — With validation and business plan
-# ─────────────────────────────────────────────
-
 def get_idea(db: Session, user_id: int, idea_id: int) -> Idea:
     idea = (
         db.query(Idea)
@@ -67,11 +49,6 @@ def get_idea(db: Session, user_id: int, idea_id: int) -> Idea:
     if not idea:
         raise HTTPException(status_code=404, detail="Idea not found.")
     return idea
-
-
-# ─────────────────────────────────────────────
-# UPDATE IDEA
-# ─────────────────────────────────────────────
 
 def update_idea(db: Session, user_id: int, idea_id: int, update_data: IdeaUpdate) -> Idea:
     idea = get_idea(db, user_id, idea_id)
@@ -98,19 +75,11 @@ def update_idea(db: Session, user_id: int, idea_id: int, update_data: IdeaUpdate
     return get_idea(db, user_id, idea_id)
 
 
-# ─────────────────────────────────────────────
-# DELETE IDEA
-# ─────────────────────────────────────────────
-
 def delete_idea(db: Session, user_id: int, idea_id: int) -> None:
     idea = get_idea(db, user_id, idea_id)
-    db.delete(idea)  # cascades to validation, business plan, and conversations
+    db.delete(idea)
     db.commit()
 
-
-# ─────────────────────────────────────────────
-# RETRY VALIDATION
-# ─────────────────────────────────────────────
 
 def retry_validation(db: Session, user_id: int, idea_id: int) -> Idea:
     idea = get_idea(db, user_id, idea_id)
@@ -118,11 +87,6 @@ def retry_validation(db: Session, user_id: int, idea_id: int) -> Idea:
     _clear_ai_results(db, idea)
     _run_validation(db, idea)
     return get_idea(db, user_id, idea_id)
-
-
-# ─────────────────────────────────────────────
-# RETRY BUSINESS PLAN
-# ─────────────────────────────────────────────
 
 def retry_business_plan(db: Session, user_id: int, idea_id: int) -> Idea:
     idea = get_idea(db, user_id, idea_id)
@@ -140,11 +104,6 @@ def retry_business_plan(db: Session, user_id: int, idea_id: int) -> Idea:
 
     _run_business_plan(db, idea)
     return get_idea(db, user_id, idea_id)
-
-
-# ─────────────────────────────────────────────
-# PRIVATE HELPERS
-# ─────────────────────────────────────────────
 
 def _run_validation(db: Session, idea: Idea) -> None:
     result = AI.validate_idea(idea.title, idea.description)
