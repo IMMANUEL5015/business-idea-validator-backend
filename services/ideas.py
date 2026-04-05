@@ -5,7 +5,7 @@ from database.models import Idea, Validation, BusinessPlan, IdeaStatus
 from helpers.schemas import IdeaCreate, IdeaUpdate
 from helpers import AI
 
-VALIDATION_THRESHOLD = 80.0
+VALIDATION_THRESHOLD = 75.0
 
 def create_idea(db: Session, user_id: int, idea_data: IdeaCreate) -> Idea:
     idea = Idea(
