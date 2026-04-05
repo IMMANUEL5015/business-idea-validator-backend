@@ -11,7 +11,7 @@ for ideas that are market worthy.
 ## Tools and Technologies
 * Python - API Development.
 * PostgreSQL - Database Technology.
-* OpenAI's API (RAG, Embeddings, Prompt Orchestration) - AI Powered Functionalities.
+* OpenAI's API (RAG and Prompt Orchestration) - AI Powered Functionalities.
 * Render and Supabase - Deployment.
 
 ## How To Setup And Run The Project On Your Local Machine
