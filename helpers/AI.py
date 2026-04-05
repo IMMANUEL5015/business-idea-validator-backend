@@ -56,7 +56,7 @@ def validate_idea(title: str, description: str) -> dict:
                     "\"score\" (a float between 0 and 100 reflecting how well the idea passed all criteria), "
                     "\"risks\" (a string summarising the key risks uncovered across all criteria), "
                     "\"opportunities\" (a string summarising the key market opportunities identified), "
-                    "\"ai_feedback\" (a string with your overall honest assessment, referencing the criteria "
+                    "\"ai_feedback\" (a string with your overall honest assessment, based on all the provided criteria, but without explicitly referencing each criteria number in your response"
                     "the idea passed and failed, and a clear recommendation on whether to proceed). "
                     "Do not include any text outside the JSON object."
                 ),
